@@ -18,7 +18,7 @@ A simple voice cloning application using [ElevenLabs](https://www.elevenlabs.io/
 
 ```bash
 git clone https://github.com/anonhossain/voice_cloning
-cd your-repo-name
+cd voice_cloning
 ```
  
 ## 2. Install the requirements
