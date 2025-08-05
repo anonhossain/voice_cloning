@@ -7,6 +7,7 @@ from openai import OpenAI
 from elevenlabs.client import ElevenLabs
 from pydub import AudioSegment
 from scipy.signal import butter, lfilter
+from elevenlabs import stream
 
 # Load environment variables
 load_dotenv()
@@ -94,11 +95,30 @@ def generate_ai_response_and_stream_audio(input_data):
 
         try:
             # Try primary ElevenLabs conversion method
-            audio_data = elevenlabs_client.text_to_speech.convert(
+
+            # audio_data = elevenlabs_client.text_to_speech.convert(
+            #     voice_id=cloned_voice_id,
+            #     text=ai_response_text,
+            #     model_id="eleven_multilingual_v2",  # or "eleven_multilingual_v2", "eleven_monolingual_v1"
+            #     output_format="mp3_44100_128",
+            #     voice_settings={
+            #         "stability": 0.5,
+            #         "use_speaker_boost": True,
+            #         "similarity_boost": 1.0,
+            #         "style": 1.0,
+            #         "speed": 0.9
+            #     }
+            # )
+            # audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
+            # apply_filter_and_save_audio(audio_bytes, output_file)
+
+            ### Use streaming method for real-time audio generation ###
+
+            audio_data = elevenlabs_client.text_to_speech.stream(
                 voice_id=cloned_voice_id,
                 text=ai_response_text,
                 model_id="eleven_multilingual_v2",  # or "eleven_multilingual_v2", "eleven_monolingual_v1"
-                output_format="mp3_44100_128",
+                output_format="mp3_44100_128 dlt",
                 voice_settings={
                     "stability": 0.5,
                     "use_speaker_boost": True,
@@ -107,6 +127,7 @@ def generate_ai_response_and_stream_audio(input_data):
                     "speed": 0.9
                 }
             )
+            stream(audio_data)
             audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
             apply_filter_and_save_audio(audio_bytes, output_file)
 
