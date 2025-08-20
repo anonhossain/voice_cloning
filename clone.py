@@ -257,8 +257,8 @@ def remove_noise_and_clone_voice(input_audio, clone_name, skip_noise_reduction=F
     try:
         audio_data, sample_rate = sf.read(temp_audio_path)
         duration = len(audio_data) / sample_rate
-        if duration < 10:
-            raise Exception(f"Audio duration ({duration:.2f}s) too short. Min 10s required.")
+        if duration > 300:
+            raise Exception(f"Audio duration ({duration:.2f}s) too long. Max 5 minutes required.")
         print(f"✅ Audio duration: {duration:.2f} seconds")
     except Exception as e:
         if temp_audio_path != input_audio_path:
