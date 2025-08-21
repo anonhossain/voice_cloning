@@ -59,96 +59,6 @@ def apply_filter_and_save_audio(mp3_bytes, output_file):
     print(f"✅ Filtered audio saved as {output_file}")
 
 
-# def generate_ai_response_and_stream_audio(input_data):
-#     """
-#     Generates an AI response and saves the speech as an audio file using a cloned voice.
-#     """
-#     user_data = input_data.get('user_data', {})
-#     cloned_voice_id = input_data.get('cloned_voice_id', '')
-
-#     # Build dynamic prompt
-#     prompt = "You are an AI assistant (user's loved one) having a warm, caring, and supportive conversation with a user. Here is some information about the user:\n"
-#     for key, value in user_data.items():
-#         prompt += f"\n- {key.replace('_', ' ').capitalize()} is {value}."
-#     prompt += "\n\nRespond warmly, personally, and consistently incorporate the details above when necessary to maintain a caring and meaningful conversation. You are the user's loved one - give reply like you are talking with the user one to one."
-
-#     try:
-#         # Get AI response from OpenAI
-#         response = openai_client.chat.completions.create(
-#             model="gpt-4o",
-#             messages=[
-#                 {"role": "system", "content": "You are a warm, caring AI loved one. You must sound personal and affectionate. Use the user's data to shape your response naturally."},
-#                 {"role": "system", "content": f"User data: {json.dumps(user_data)}"},
-#                 {"role": "user", "content": user_data.get("distinct_greeting", "Hi there!")}
-#             ],
-#             max_tokens=2000,
-#             temperature=0.7,
-#         )
-
-#         ai_response_text = response.choices[0].message.content
-#         print(f"AI says: {ai_response_text}")
-
-#         output_file = "output/output_audio_filtered.mp3"
-#         output_dir = os.path.dirname(output_file)
-#         if not os.path.exists(output_dir):
-#             os.makedirs(output_dir)
-
-#         try:
-#             # Try primary ElevenLabs conversion method
-
-#             # audio_data = elevenlabs_client.text_to_speech.convert(
-#             #     voice_id=cloned_voice_id,
-#             #     text=ai_response_text,
-#             #     model_id="eleven_multilingual_v2",  # or "eleven_multilingual_v2", "eleven_monolingual_v1"
-#             #     output_format="mp3_44100_128",
-#             #     voice_settings={
-#             #         "stability": 0.5,
-#             #         "use_speaker_boost": True,
-#             #         "similarity_boost": 1.0,
-#             #         "style": 1.0,
-#             #         "speed": 0.9
-#             #     }
-#             # )
-#             # audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
-#             # apply_filter_and_save_audio(audio_bytes, output_file)
-
-#             ### Use streaming method for real-time audio generation ###
-
-#             audio_data = elevenlabs_client.text_to_speech.stream(
-#                 voice_id=cloned_voice_id,
-#                 text=ai_response_text,
-#                 model_id="eleven_multilingual_v2",  # or "eleven_multilingual_v2", "eleven_monolingual_v1"
-#                 output_format="mp3_44100_128 dlt",
-#                 voice_settings={
-#                     "stability": 0.5,
-#                     "use_speaker_boost": True,
-#                     "similarity_boost": 1.0,
-#                     "style": 1.0,
-#                     "speed": 0.9
-#                 }
-#             )
-#             stream(audio_data)
-#             audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
-#             apply_filter_and_save_audio(audio_bytes, output_file)
-
-#         except AttributeError:
-#             print("Fallback: Using newer SDK method...")
-#             audio_data = elevenlabs_client.generate(
-#                 text=ai_response_text,
-#                 voice=cloned_voice_id,
-#                 model="eleven_multilingual_v2",
-#                 stream=False
-#             )
-#             audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
-#             apply_filter_and_save_audio(audio_bytes, output_file)
-
-#         except Exception as e:
-#             print(f"Error generating or saving speech: {e}")
-
-#     except Exception as e:
-#         print(f"Error generating AI response: {e}")
-
-
 def generate_ai_response_and_stream_audio(input_data, voice_id):
     """
     Generates an AI response and saves the speech as an audio file using a cloned voice.
@@ -187,7 +97,7 @@ def generate_ai_response_and_stream_audio(input_data, voice_id):
             # Try primary ElevenLabs conversion method
 
             # audio_data = elevenlabs_client.text_to_speech.convert(
-            #     voice_id=cloned_voice_id,
+            #     voice_id=voice_id,
             #     text=ai_response_text,
             #     model_id="eleven_multilingual_v2",  # or "eleven_multilingual_v2", "eleven_monolingual_v1"
             #     output_format="mp3_44100_128",
@@ -202,13 +112,13 @@ def generate_ai_response_and_stream_audio(input_data, voice_id):
             # audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
             # apply_filter_and_save_audio(audio_bytes, output_file)
 
-            ### Use streaming method for real-time audio generation ###
+            ## Use streaming method for real-time audio generation ###
 
             audio_data = elevenlabs_client.text_to_speech.stream(
                 voice_id=voice_id,
                 text=ai_response_text,
                 model_id="eleven_multilingual_v2",  # or "eleven_multilingual_v2", "eleven_monolingual_v1"
-                output_format="mp3_44100_128 dlt",
+                output_format="mp3_44100_128", #mp3_44100_128 dlt
                 voice_settings={
                     "stability": 0.5,
                     "use_speaker_boost": True,
