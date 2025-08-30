@@ -59,18 +59,40 @@ def apply_filter_and_save_audio(mp3_bytes, output_file):
     print(f"✅ Filtered audio saved as {output_file}")
 
 
-def generate_ai_response_and_stream_audio(input_data, voice_id):
-    """
-    Generates an AI response and saves the speech as an audio file using a cloned voice.
-    """
-    user_data = input_data.get('user_data', {})
-    #cloned_voice_id = input_data.get('cloned_voice_id', '')
+def generate_ai_response_and_stream_audio(input_data, user_input, voice_id):
+    # """
+    # Generates an AI response and saves the speech as an audio file using a cloned voice.
+    # """
+    # user_data = input_data.get('user_data', {})
+    # #cloned_voice_id = input_data.get('cloned_voice_id', '')
 
-    # Build dynamic prompt
-    prompt = "You are an AI assistant (user's loved one) having a warm, caring, and supportive conversation with a user. Here is some information about the user:\n"
-    for key, value in user_data.items():
-        prompt += f"\n- {key.replace('_', ' ').capitalize()} is {value}."
-    prompt += "\n\nRespond warmly, personally, and consistently incorporate the details above when necessary to maintain a caring and meaningful conversation. You are the user's loved one - give reply like you are talking with the user one to one."
+    # # Build dynamic prompt
+    # prompt = "You are an AI assistant (user's loved one) having a warm, caring, and supportive conversation with a user. Here is some information about the user:\n"
+    # for key, value in user_data.items():
+    #     prompt += f"\n- {key.replace('_', ' ').capitalize()} is {value}."
+    # prompt += "\n\nRespond warmly, personally, and consistently incorporate the details above when necessary to maintain a caring and meaningful conversation. You are the user's loved one - give reply like you are talking with the user one to one."
+    user_data = input_data.get('user_data', {})
+    prompt = (
+    f"You are an AI assistant (user's loved one) having a warm, caring, and supportive conversation "
+    f"with a user.\n\n"
+    f"**User input:** \"{user_input}\"\n\n"
+    "Respond naturally based on the user's input. Keep the response warm and loving, just like how the "
+    "user’s loved one would respond. Don't repeat the user’s words; focus on giving a thoughtful and "
+    "supportive reply. If the user brings up any of the special topics or moments, incorporate them into "
+    "the conversation in a natural and caring way.\n\n"
+    "Your responses should sound like they come from the user’s loved one. Be warm, natural, and caring, "
+    "incorporating relevant details about the user's loved one or their relationship only when it feels "
+    "right in the conversation.\n\n"
+    "If the user mentions something related to the favorite song, signature phrase, or special moments, "
+    "include that in a personal way. Here is some information about the user:\n"
+    )
+    for key, value in input_data.items():
+        prompt += f"- {key.replace('_', ' ').capitalize()} is {value}.\n"
+    prompt += (
+        "\nRespond warmly, personally, and consistently incorporate the details above when necessary to "
+        "maintain a caring and meaningful conversation. You are the user's loved one - give reply like you "
+        "are talking with the user one to one."
+    )
 
     try:
         # Get AI response from OpenAI
@@ -159,9 +181,9 @@ if __name__ == "__main__":
             "distinct_goodbye": "See you soon, take care!",
             "nickname_for_loved_one": "Johnny",
             "favorite_food": "Pizza",
-            "special_moment": "The first time we went hiking together."
+            "special_moment": "The first time we went hiking together.",
         },
-        #"cloned_voice_id": voice_id
     }
+    user_input = "Hello how are you?"
 
-    generate_ai_response_and_stream_audio(input_data, voice_id)
+    generate_ai_response_and_stream_audio(input_data, user_input, voice_id)
