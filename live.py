@@ -149,8 +149,20 @@ def generate_ai_response_and_stream_audio(input_data, user_input, voice_id):
                     "speed": 0.9
                 }
             )
-            stream(audio_data)
-            audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
+            # stream(audio_data)
+            # audio_bytes = b''.join(chunk for chunk in audio_data if chunk)
+            # apply_filter_and_save_audio(audio_bytes, output_file)
+
+            # Option 2: Process the audio bytes manually
+            audio_bytes = b''  # Initialize an empty byte string to accumulate audio data
+            
+            # Iterate through each chunk of the audio stream
+            for chunk in audio_data:
+                if isinstance(chunk, bytes):
+                    print(f"Processing chunk of size {len(chunk)} bytes")  # Optionally print the chunk size for debugging
+                    audio_bytes += chunk  # Accumulate the audio bytes
+            
+            # Now, apply any filter and save the final audio
             apply_filter_and_save_audio(audio_bytes, output_file)
 
         except AttributeError:

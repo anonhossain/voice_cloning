@@ -1,10 +1,11 @@
 from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from clone import remove_noise_and_clone_voice, clone_name  # import your function
 import os
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from stt import ElevenLabsTranscriber
 from voice_chat import process_voice_chat
+
 
 
 router = APIRouter()
@@ -76,5 +77,67 @@ async def voice_chat(file: UploadFile = File(...), background_tasks: BackgroundT
 
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+# 3. Voice Chat Endpoint
+@router.post("/voice_chat2/")
+async def voice_chat(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
+    """
+    Process a voice chat and return AI-generated audio response.
+    """
+    try:
+        temp_path = f"temp_{file.filename}"
+        with open(temp_path, "wb") as f:
+            f.write(await file.read())
+
+        result = process_voice_chat(temp_path)
+
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
+
+        if isinstance(result, dict) and "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+
+        if background_tasks is None:
+            return FileResponse(result, media_type="audio/mpeg", filename="ai_response.mp3")
+
+        background_tasks.add_task(lambda p=result: os.remove(p) if os.path.exists(p) else None)
+        return FileResponse(result, media_type="audio/mpeg", filename="ai_response.mp3")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+def audio_file_streamer(file_path, chunk_size=1024):
+    """Generator that streams audio in chunks."""
+    with open(file_path, "rb") as audio_file:
+        while chunk := audio_file.read(chunk_size):
+            yield chunk
+
+@router.post("/voice_chat_stream/")
+async def voice_chat_stream(file: UploadFile = File(...)):
+    """
+    Stream AI-generated audio response back to the client.
+    """
+    try:
+        temp_path = f"temp_{file.filename}"
+        with open(temp_path, "wb") as f:
+            f.write(await file.read())
+
+        # After generating audio via process_voice_chat
+        result_path = process_voice_chat(temp_path)  # Returns full audio file path
+
+        if not os.path.exists(result_path):
+            raise HTTPException(status_code=404, detail="Generated audio not found")
+
+        return StreamingResponse(audio_file_streamer(result_path), media_type="audio/mpeg")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
