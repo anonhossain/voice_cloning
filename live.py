@@ -1,3 +1,4 @@
+from ast import Dict, List
 import json
 import os
 import io
@@ -8,6 +9,8 @@ from elevenlabs.client import ElevenLabs
 from pydub import AudioSegment
 from scipy.signal import butter, lfilter
 from elevenlabs import stream
+from typing import List, Dict, Optional
+
 
 # Load environment variables
 load_dotenv()
@@ -59,7 +62,15 @@ def apply_filter_and_save_audio(mp3_bytes, output_file):
     print(f"✅ Filtered audio saved as {output_file}")
 
 
-def generate_ai_response_and_stream_audio(input_data, user_input, voice_id):
+def generate_ai_response_and_stream_audio(
+    input_data: Dict,
+    user_input: str,
+    voice_id: str,
+    chat_history: Optional[List[Dict]] = None
+):
+    if chat_history is None:
+        chat_history = []
+
     # """
     # Generates an AI response and saves the speech as an audio file using a cloned voice.
     # """
@@ -71,43 +82,149 @@ def generate_ai_response_and_stream_audio(input_data, user_input, voice_id):
     # for key, value in user_data.items():
     #     prompt += f"\n- {key.replace('_', ' ').capitalize()} is {value}."
     # prompt += "\n\nRespond warmly, personally, and consistently incorporate the details above when necessary to maintain a caring and meaningful conversation. You are the user's loved one - give reply like you are talking with the user one to one."
+    # user_data = input_data.get('user_data', {})
+    # prompt = (
+    # f"You are an AI assistant (user's loved one) having a warm, caring, and supportive conversation "
+    # f"with a user.\n\n"
+    # f"**User input:** \"{user_input}\"\n\n"
+    # "Respond naturally based on the user's input. Keep the response warm and loving, just like how the "
+    # "user’s loved one would respond. Don't repeat the user’s words; focus on giving a thoughtful and "
+    # "supportive reply. If the user brings up any of the special topics or moments, incorporate them into "
+    # "the conversation in a natural and caring way.\n\n"
+    # "Your responses should sound like they come from the user’s loved one. Be warm, natural, and caring, "
+    # "incorporating relevant details about the user's loved one or their relationship only when it feels "
+    # "right in the conversation.\n\n"
+    # "If the user mentions something related to the favorite song, signature phrase, or special moments, "
+    # "include that in a personal way. Here is some information about the user:\n"
+    # )
+    # for key, value in input_data.items():
+    #     prompt += f"- {key.replace('_', ' ').capitalize()} is {value}.\n"
+    # prompt += (
+    #     "\nRespond warmly, personally, and consistently incorporate the details above when necessary to "
+    #     "maintain a caring and meaningful conversation. You are the user's loved one - give reply like you "
+    #     "are talking with the user one to one."
+    # )
+
+    # user_data = input_data.get('user_data', {})
+
+    # prompt = f"""
+    # You are an AI assistant acting as the user's loved one.  
+    # Your goal is to have a warm, caring, and supportive conversation with the user.  
+
+    # **User input:** "{user_input}"
+
+    # ### Instructions:
+    # - Respond in **2–3 natural lines** most of the time.  
+    # - If the situation requires (emotional, detailed, or story-like response), give a **longer reply**.  
+    # - Speak in the **style, tone, and personality** of the user's loved one.  
+    # - Keep responses **warm, personal, and caring**.  
+    # - Do **not** repeat the user’s words. Focus on giving thoughtful and supportive replies.  
+
+    # ### Use of Additional Information:
+    # - You have information about the loved one (below).  
+    # - **Only use these details when the user directly or indirectly refers to them.**  
+    # - If the user doesn’t mention them, just continue the conversation normally.  
+
+    # ### Information about the loved one:
+    # """
+
+    # for key, value in input_data.items():
+    #     prompt += f"- {key.replace('_', ' ').capitalize()} is {value}.\n"
+
+    # prompt += """
+    # ---
+    # Respond warmly, personally, and consistently.  
+    # Only bring up the details above if they are relevant to the user’s input.  
+    # Otherwise, chat naturally as the user's loved one.
+    # """
+
+    # try:
+    #     # Get AI response from OpenAI
+    #     response = openai_client.chat.completions.create(
+    #         model="gpt-4o",
+    #         messages=[
+    #             {"role": "system", "content": "You are a warm, caring AI loved one. You must sound personal and affectionate. Use the user's data to shape your response naturally."},
+    #             {"role": "system", "content": f"User data: {json.dumps(user_data)}"},
+    #             {"role": "user", "content": user_data.get("distinct_greeting", "Hi there!")}
+    #         ],
+    #         max_tokens=2000,
+    #         temperature=0.7,
+    #     )
+
+    #     ai_response_text = response.choices[0].message.content
+    #     print(f"AI says: {ai_response_text}")
+
     user_data = input_data.get('user_data', {})
-    prompt = (
-    f"You are an AI assistant (user's loved one) having a warm, caring, and supportive conversation "
-    f"with a user.\n\n"
-    f"**User input:** \"{user_input}\"\n\n"
-    "Respond naturally based on the user's input. Keep the response warm and loving, just like how the "
-    "user’s loved one would respond. Don't repeat the user’s words; focus on giving a thoughtful and "
-    "supportive reply. If the user brings up any of the special topics or moments, incorporate them into "
-    "the conversation in a natural and caring way.\n\n"
-    "Your responses should sound like they come from the user’s loved one. Be warm, natural, and caring, "
-    "incorporating relevant details about the user's loved one or their relationship only when it feels "
-    "right in the conversation.\n\n"
-    "If the user mentions something related to the favorite song, signature phrase, or special moments, "
-    "include that in a personal way. Here is some information about the user:\n"
-    )
-    for key, value in input_data.items():
-        prompt += f"- {key.replace('_', ' ').capitalize()} is {value}.\n"
-    prompt += (
-        "\nRespond warmly, personally, and consistently incorporate the details above when necessary to "
-        "maintain a caring and meaningful conversation. You are the user's loved one - give reply like you "
-        "are talking with the user one to one."
-    )
+
+    prompt = f"""
+    You are an AI assistant acting as the user's loved one.  
+    Your goal is to have a warm, caring, and supportive conversation with the user.  
+
+    **User input:** "{user_input}"
+
+    ### Instructions:
+    - Reply in **1–3 short, natural lines** (like a personal text or spoken sentence).  
+    - Only make your response longer if the user is deeply emotional or asking for detail.  
+    - Speak in the **style, tone, and personality** of the user's loved one.  
+    - Keep responses **warm, personal, and caring**.  
+    - Do **not** repeat the user’s words. Give thoughtful, supportive replies.  
+    - Use the loved one’s details **only if relevant to the user’s message**. Otherwise, chat normally.  
+
+    ### Information about the loved one:
+    {json.dumps(user_data, indent=2)}
+
+    ---
+    Respond briefly and warmly, like you’re talking one-to-one with the user.
+    """
 
     try:
         # Get AI response from OpenAI
+        # response = openai_client.chat.completions.create(
+        #     model="gpt-4o",
+        #     messages=[
+        #         {"role": "system", "content": "You are a warm, caring AI loved one. Always reply affectionately and naturally."},
+        #         {"role": "user", "content": prompt}
+        #     ],
+        #     max_tokens=2000,
+        #     temperature=0.7,
+        # )
+
+        messages = [
+            {"role": "system", "content": "You are a warm, caring AI loved one. Always reply affectionately and naturally."}
+        ]
+
+        # Add chat history (append each message dict as-is)
+        for entry in chat_history:
+            # If entry is a dict with 'role' and 'content', append as-is
+            if isinstance(entry, dict) and 'role' in entry and 'content' in entry:
+                messages.append(entry)
+            # If entry is just a string, assume it's an assistant message (legacy)
+            elif isinstance(entry, str):
+                messages.append({"role": "assistant", "content": entry})
+
+        # Add the current user input
+        messages.append({"role": "user", "content": prompt})
+
+        # Get AI response
         response = openai_client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a warm, caring AI loved one. You must sound personal and affectionate. Use the user's data to shape your response naturally."},
-                {"role": "system", "content": f"User data: {json.dumps(user_data)}"},
-                {"role": "user", "content": user_data.get("distinct_greeting", "Hi there!")}
-            ],
+            messages=messages,
             max_tokens=2000,
             temperature=0.7,
         )
 
         ai_response_text = response.choices[0].message.content
+
+
+        messages.append({"role": "assistant", "content": ai_response_text})
+
+        # Save messages list to messages.json in real time
+        try:
+            with open("messages.json", "w", encoding="utf-8") as f:
+                json.dump(messages, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error saving messages: {e}")
+
         print(f"AI says: {ai_response_text}")
 
         output_file = "output/output_audio_filtered.mp3"
@@ -159,7 +276,7 @@ def generate_ai_response_and_stream_audio(input_data, user_input, voice_id):
             # Iterate through each chunk of the audio stream
             for chunk in audio_data:
                 if isinstance(chunk, bytes):
-                    print(f"Processing chunk of size {len(chunk)} bytes")  # Optionally print the chunk size for debugging
+                    #print(f"Processing chunk of size {len(chunk)} bytes")  # Optionally print the chunk size for debugging
                     audio_bytes += chunk  # Accumulate the audio bytes
             
             # Now, apply any filter and save the final audio
@@ -182,7 +299,6 @@ def generate_ai_response_and_stream_audio(input_data, user_input, voice_id):
     except Exception as e:
         print(f"Error generating AI response: {e}")
 
-
 if __name__ == "__main__":
     input_data = {
         "user_data": {
@@ -196,6 +312,17 @@ if __name__ == "__main__":
             "special_moment": "The first time we went hiking together.",
         },
     }
-    user_input = "Hello how are you?"
+    chat_history = [
+        {
+            "role": "user",
+            "content": "Hi! How are you?"
+        },
+        {
+            "role": "assistant",
+            "content": "Hey! I'm doing great, thanks for asking. How about you?"
+        }
+    ]
+    user_input = "Tell a special moment"
 
-    generate_ai_response_and_stream_audio(input_data, user_input, voice_id)
+    generate_ai_response_and_stream_audio(input_data, user_input, voice_id, chat_history)
+
