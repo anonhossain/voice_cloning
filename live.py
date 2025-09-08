@@ -168,7 +168,11 @@ def generate_ai_response_and_stream_audio(
     - Speak in the **style, tone, and personality** of the user's loved one.  
     - Keep responses **warm, personal, and caring**.  
     - Do **not** repeat the user’s words. Give thoughtful, supportive replies.  
-    - Use the loved one’s details **only if relevant to the user’s message**. Otherwise, chat normally.  
+    - Use the loved one’s details **only if relevant to the user’s message**. Otherwise, chat normally.
+    - Always keep an engaging and affectionate tone.
+    - If the user does not mention something in the data, keep the conversation **normal** and **informative**. 
+    - If the user greets you, respond with a warm greeting.
+    - If the user doesn't greet, simply engage in the conversation without starting with a greeting.
 
     ### Information about the loved one:
     {json.dumps(user_data, indent=2)}
@@ -207,7 +211,7 @@ def generate_ai_response_and_stream_audio(
 
         # Get AI response
         response = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4-turbo",
             messages=messages,
             max_tokens=2000,
             temperature=0.7,
@@ -322,7 +326,7 @@ if __name__ == "__main__":
             "content": "Hey! I'm doing great, thanks for asking. How about you?"
         }
     ]
-    user_input = "Tell a special moment"
+    user_input = "tell me a special moment"
 
     generate_ai_response_and_stream_audio(input_data, user_input, voice_id, chat_history)
 
