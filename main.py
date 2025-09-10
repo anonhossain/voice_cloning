@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from views import router as api_router
 
-app = FastAPI()
+app = FastAPI(
+    title="Fiz Mate", 
+    description="Lets fix your things with AI.",
+)
 app.include_router(api_router)
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Form, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from clone import remove_noise_and_clone_voice, clone_name  # import your function
 import os
@@ -10,11 +10,22 @@ from voice_chat import process_voice_chat
 
 router = APIRouter()
 
+# @router.post("/clone-voice/")
+# async def clone_voice(file: UploadFile = File(...)):
+#     try:
+#         voice_id = remove_noise_and_clone_voice(file.file, clone_name, skip_noise_reduction=True)
+#         return {"voice_id": voice_id}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+    
 @router.post("/clone-voice/")
-async def clone_voice(file: UploadFile = File(...)):
+async def clone_voice(
+    file: UploadFile = File(...),
+    name: str = Form(...)   # take voice name from user input
+):
     try:
-        voice_id = remove_noise_and_clone_voice(file.file, clone_name, skip_noise_reduction=True)
-        return {"voice_id": voice_id}
+        voice_id = remove_noise_and_clone_voice(file.file, name, skip_noise_reduction=True)
+        return {"voice_id": voice_id, "voice_name": name}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
