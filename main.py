@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from views import router as api_router
 
 app = FastAPI(
-    title="Fiz Mate", 
-    description="Lets fix your things with AI.",
+    title="Voice mate", 
+    description="Lets play with voice",
 )
 app.include_router(api_router)
 
