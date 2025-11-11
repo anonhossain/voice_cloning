@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from api.views import api
 
 
-app = FastAPI()
+app = FastAPI(title="Voice mate", description="Lets play with voice")
 
 app.include_router(api)
 
