@@ -57,9 +57,11 @@ class VoiceCloner:
 # ---------------- Example Usage ----------------
 if __name__ == "__main__":
     # Paths
-    enhanced_wav = r"C:\files\voice-cloning\file\assets\output\summary_audio35.wav"
+    enhanced_wav = r"C:\files\voice-cloning\file\output\Tucker-[AudioTrimmer.com].mp3"
 
     # 2️⃣ Clone voice
     cloner = VoiceCloner()
-    voice_id = cloner.clone_voice(enhanced_wav, clone_name="MyClone")
+    voice_id = cloner.clone_voice(enhanced_wav, clone_name="test_Clone", description="Cloned voice of test person")
     print(f"Cloned Voice ID: {voice_id}")
+
+#ruvwV723wkhLMh5M1vSI

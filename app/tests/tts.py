@@ -41,7 +41,9 @@ class TextToSpeechGenerator:
                 "stability": 0.5,
                 "similarity_boost": 0.9,
                 "style": 1.0,
-                "use_speaker_boost": True
+                "use_speaker_boost": True,
+                "speed": 0.75
+
             }
         )
 
@@ -59,16 +61,17 @@ class TextToSpeechGenerator:
 
 def main():
     # Set the path for the text file and output directory
-    text_file_path = "file/assets/output/temp_Recording.txt"  # Path to the text file to be converted to speech
+    text_file_path = "file/assets/output/Tucker_summarizer.txt"  # Path to the text file to be converted to speech
     output_directory = "file/assets/output/"         # Directory where the audio file will be saved
-    output_file_path = os.path.join(output_directory, "summary_audio35.mp3")  # Full path for the MP3 file
-    voice_id = "4Ubr9Di0IxxcJHhSDz8P"  # Example voice ID, you can replace this with the desired voice ID
+    output_file_path = os.path.join(output_directory, "Tucker_summarized2.mp3")  # Full path for the MP3 file
+    voice_id = "x98xhnTaTuiJIQ6Kxz7D"
+    #voice_id = "UgBBYS2sOqTuMpoF3BR0"  # Example voice ID, you can replace this with the desired voice ID
 
     # Initialize TextToSpeechGenerator with API key and voice ID
     tts_generator = TextToSpeechGenerator(voice_id=voice_id)
 
     # Read the text from the file to convert to speech
-    with open(text_file_path, "r") as file:
+    with open(text_file_path, "r", encoding="utf-8") as file:
         sample_text = file.read()
 
     # Convert text to speech and save as MP3

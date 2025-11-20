@@ -62,7 +62,7 @@ class ElevenLabsTranscriber:
         
 
 def main():
-    file_path = "file/assets/temp_Recording.m4a"  # Change path if needed
+    file_path = "file/assets/Tucker.mp3"  # Change path if needed
     save_directory = 'file/assets/output/'   # Directory to save the transcription file
     transcriber = ElevenLabsTranscriber()
     result = transcriber.transcribe(file_path, save_directory)
